@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>トップページ(サンプルA:1カラム・モーダル版)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFF3DC;
+    --panel:#FFFFFF;
+    --ink:#3A2E2A;
+    --muted:#8A7A6E;
+    --coral:#FF6F5E;
+    --mint:#22C3A6;
+    --purple:#7C5CFA;
+    --yellow:#FFC93C;
+    --line:#F1E3C8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,201,60,.35), transparent 40%),
+      radial-gradient(circle at 90% 18%, rgba(124,92,250,.18), transparent 38%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Nunito',sans-serif;
+    display:flex;justify-content:center;
+    padding:30px 12px 80px;
+  }
+  h1,h2,h3{font-family:'Fredoka',sans-serif;font-weight:600;}
+  a{color:inherit;text-decoration:none;}
+  .eyebrow{
+    font-family:'Fredoka',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--coral);font-weight:600;
+  }
+
+  .layout{
+    width:100%;max-width:920px;
+    display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;
+  }
+  @media (max-width:880px){
+    .layout{grid-template-columns:1fr;max-width:420px;}
+  }
+
+  .frame{
+    width:100%;max-width:520px;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .card{
+    background:var(--panel);
+    border-radius:22px;
+    padding:20px;
+    box-shadow:0 10px 0 var(--line), 0 16px 30px -18px rgba(58,46,42,.25);
+  }
+  .reveal{opacity:0;transform:translateY(16px) scale(.98);transition:opacity .55s ease,transform .55s ease;}
+  .reveal.in{opacity:1;transform:translateY(0) scale(1);}
+
+  /* サイドバー(お客様の声+SNS) */
+  .sidebar{display:flex;flex-direction:column;gap:14px;position:sticky;top:20px;}
+  @media (max-width:880px){ .sidebar{position:static;} }
+  .voice-list{display:flex;flex-direction:column;gap:12px;margin-top:14px;}
+  .voice-item{background:#FFF8E9;border-radius:14px;padding:14px;border:2px dashed var(--yellow);}
+  .voice-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .voice-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(150deg,#FFD6CE,#FFEDCB);flex:none;}
+  .voice-name{font-family:'Fredoka',sans-serif;font-size:11.5px;font-weight:600;}
+  .voice-date{font-size:9px;color:var(--muted);font-weight:700;margin-left:auto;}
+  .voice-text{font-size:11.5px;color:var(--ink);line-height:1.6;}
+  .voice-more{text-align:center;margin-top:4px;font-size:11px;font-weight:700;color:var(--coral);}
+  .sns-row{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .sns-link{display:flex;align-items:center;gap:10px;background:#FBF3E2;border-radius:12px;padding:11px 14px;font-size:12.5px;font-weight:700;}
+  .sns-icon{width:28px;height:28px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;font-family:'Fredoka',sans-serif;}
+  .sns-icon.ig{background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF);}
+  .sns-icon.x{background:#000;}
+  .sns-icon.line{background:#06C755;}
+  .sns-icon.tiktok{background:#111;}
+
+  /* header */
+  .header-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:40px;height:40px;border-radius:50%;
+    background:linear-gradient(135deg,var(--coral),var(--yellow));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka',sans-serif;font-weight:700;color:#fff;font-size:17px;
+    box-shadow:0 4px 0 rgba(0,0,0,.08);
+  }
+  .brand-name{font-family:'Fredoka',sans-serif;font-size:17px;font-weight:600;}
+  .header-meta{text-align:right;font-size:10.5px;color:var(--muted);line-height:1.6;font-weight:700;}
+  .hamburger{
+    width:36px;height:28px;border-radius:10px;background:var(--mint);
+    display:flex;flex-direction:column;justify-content:center;gap:5px;padding:0 8px;
+    margin-left:12px;cursor:pointer;
+  }
+  .hamburger span{display:block;height:2px;border-radius:2px;background:#fff;}
+
+  .menu-row{display:flex;gap:8px;margin-top:16px;overflow-x:auto;padding-bottom:2px;}
+  .menu-row::-webkit-scrollbar{display:none;}
+  .menu-chip{
+    flex:none;font-size:12px;font-weight:700;padding:9px 15px;border-radius:20px;
+    background:#FBF3E2;color:var(--ink);white-space:nowrap;border:2px solid transparent;
+  }
+  .menu-chip.current{background:var(--coral);color:#fff;}
+
+  /* 店舗切替(モーダル版) */
+  .store-chip-row{
+    display:flex;align-items:center;justify-content:space-between;
+    background:#FBF3E2;border-radius:14px;padding:12px 16px;cursor:pointer;
+  }
+  .store-chip-left{display:flex;align-items:center;gap:8px;}
+  .store-pin{
+    width:22px;height:22px;border-radius:50%;background:var(--coral);
+    color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none;
+  }
+  .store-chip-name{font-family:'Fredoka',sans-serif;font-size:14px;font-weight:600;}
+  .store-chip-caret{color:var(--muted);font-size:12px;}
+
+  /* モーダル */
+  .store-modal-overlay{
+    position:fixed;inset:0;background:rgba(58,46,42,.5);
+    opacity:0;pointer-events:none;transition:opacity .3s ease;z-index:50;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  .store-modal-overlay.open{opacity:1;pointer-events:auto;}
+  .store-modal{
+    width:100%;max-width:420px;max-height:78vh;
+    background:var(--panel);border-radius:24px 24px 0 0;
+    padding:20px 20px 24px;overflow-y:auto;
+    transform:translateY(100%);transition:transform .35s cubic-bezier(.22,.9,.36,1);
+  }
+  .store-modal-overlay.open .store-modal{transform:translateY(0);}
+  .store-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .store-modal-head span{font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;}
+  .store-modal-close{
+    width:30px;height:30px;border-radius:50%;background:#FBF3E2;
+    display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;
+  }
+  .store-search{
+    display:flex;align-items:center;gap:8px;background:#FBF3E2;border-radius:12px;
+    padding:11px 14px;margin-bottom:18px;
+  }
+  .store-search input{
+    border:none;background:transparent;outline:none;font-size:13px;font-family:'Nunito',sans-serif;
+    width:100%;color:var(--ink);
+  }
+  .store-cat-label{
+    font-size:10.5px;font-weight:800;color:var(--muted);margin:14px 0 8px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .store-cat-label .dot-mark{width:7px;height:7px;border-radius:50%;}
+  .store-cat-label.first{margin-top:0;}
+  .store-option{
+    padding:12px 6px;font-size:13.5px;font-weight:700;color:var(--ink);
+    border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer;
+  }
+  .store-option.selected{color:var(--coral);}
+  .store-option.selected::after{content:"✓";}
+
+  /* LINE求人バナー */
+  .line-banner{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:linear-gradient(120deg,#06C755,#05B84D);
+    padding:14px 16px;
+  }
+  .line-banner-inner{display:flex;align-items:center;gap:10px;}
+  .line-icon{
+    width:34px;height:34px;border-radius:10px;background:#fff;color:#06C755;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka',sans-serif;font-weight:700;font-size:16px;flex:none;
+  }
+  .line-text{display:flex;flex-direction:column;gap:2px;}
+  .line-badge{
+    font-size:9px;font-weight:800;color:#fff;background:var(--coral);
+    display:inline-block;padding:2px 7px;border-radius:8px;width:fit-content;
+    letter-spacing:.03em;
+  }
+  .line-copy{color:#fff;font-size:12.5px;font-weight:700;}
+  .line-cta{
+    flex:none;background:#fff;color:#05B84D;font-size:11.5px;font-weight:800;
+    padding:9px 14px;border-radius:20px;white-space:nowrap;
+    box-shadow:0 3px 0 rgba(0,0,0,.12);
+  }
+
+  /* ハンバーガードロワー */
+  .drawer-overlay{
+    position:fixed;inset:0;background:rgba(58,46,42,.45);
+    opacity:0;pointer-events:none;transition:opacity .3s ease;z-index:40;
+  }
+  .drawer-overlay.open{opacity:1;pointer-events:auto;}
+  .drawer{
+    position:fixed;top:0;right:0;height:100%;width:78%;max-width:320px;
+    background:var(--panel);z-index:41;
+    transform:translateX(100%);transition:transform .35s cubic-bezier(.22,.9,.36,1);
+    padding:24px 20px;overflow-y:auto;
+    border-radius:22px 0 0 22px;
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .drawer-head span{font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;}
+  .drawer-close{
+    width:30px;height:30px;border-radius:50%;background:#FBF3E2;
+    display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;
+  }
+  .drawer-list{display:flex;flex-direction:column;gap:4px;}
+  .drawer-list a{
+    padding:13px 10px;font-size:13.5px;font-weight:700;color:var(--ink);
+    border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;
+  }
+  .drawer-list a.current{color:var(--coral);}
+  .drawer-list a::after{content:"›";color:var(--muted);}
+
+  /* search */
+  .search-box{
+    display:flex;align-items:center;gap:10px;
+    background:#FFF8E9;border:2px dashed var(--yellow);border-radius:16px;
+    padding:14px 16px;
+  }
+  .search-icon{
+    width:18px;height:18px;border:2.5px solid var(--coral);border-radius:50%;position:relative;flex:none;
+  }
+  .search-icon::after{
+    content:"";position:absolute;width:8px;height:2.5px;background:var(--coral);
+    right:-6px;bottom:0px;transform:rotate(45deg);border-radius:2px;
+  }
+  .search-text{font-size:12.5px;font-weight:700;color:var(--ink);}
+  .search-text span{color:var(--coral);}
+
+  /* 検索絞り込みモーダル */
+  .search-modal-overlay{
+    position:fixed;inset:0;background:rgba(58,46,42,.5);opacity:0;pointer-events:none;
+    transition:opacity .3s ease;z-index:52;display:flex;align-items:flex-end;justify-content:center;
+  }
+  .search-modal-overlay.open{opacity:1;pointer-events:auto;}
+  .search-modal{
+    width:100%;max-width:420px;max-height:82vh;background:var(--panel);
+    border-radius:24px 24px 0 0;padding:20px 20px 100px;overflow-y:auto;position:relative;
+    transform:translateY(100%);transition:transform .35s cubic-bezier(.22,.9,.36,1);
+  }
+  .search-modal-overlay.open .search-modal{transform:translateY(0);}
+  .search-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .search-modal-head span{font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;}
+  .search-section-label{font-size:11px;font-weight:800;color:var(--muted);margin:18px 0 10px;}
+  .type-chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .type-chip{
+    font-size:12px;font-weight:700;padding:9px 14px;border-radius:18px;
+    background:#FBF3E2;color:var(--ink);cursor:pointer;border:2px solid transparent;
+  }
+  .type-chip.selected{background:var(--coral);color:#fff;}
+  .store-check-row{display:flex;flex-direction:column;}
+  .store-check{
+    display:flex;align-items:center;gap:10px;padding:10px 6px;font-size:13px;font-weight:700;
+    border-bottom:1px solid var(--line);cursor:pointer;
+  }
+  .store-check .box{
+    width:18px;height:18px;border-radius:5px;border:2px solid var(--line);flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;
+  }
+  .store-check.checked .box{background:var(--mint);border-color:var(--mint);}
+  .store-check.checked .box::after{content:"✓";}
+  .search-modal-footer{
+    position:sticky;bottom:-100px;left:0;right:0;background:var(--panel);
+    padding:14px 0 0;margin-top:20px;
+  }
+
+  /* SUUMO型 絞り込みパネル */
+  .filter-panel-overlay{
+    position:fixed;inset:0;background:rgba(58,46,42,.5);opacity:0;pointer-events:none;
+    transition:opacity .3s ease;z-index:53;display:flex;align-items:flex-end;justify-content:center;
+  }
+  .filter-panel-overlay.open{opacity:1;pointer-events:auto;}
+  .filter-panel{
+    width:100%;max-width:420px;height:88vh;background:var(--panel);
+    border-radius:24px 24px 0 0;display:flex;flex-direction:column;
+    transform:translateY(100%);transition:transform .35s cubic-bezier(.22,.9,.36,1);
+  }
+  .filter-panel-overlay.open .filter-panel{transform:translateY(0);}
+  .filter-panel-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 20px 14px;border-bottom:1px solid var(--line);flex:none;
+  }
+  .filter-panel-head span{font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;}
+  .filter-panel-close{width:30px;height:30px;border-radius:50%;background:#FBF3E2;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;}
+  .filter-panel-body{flex:1;overflow-y:auto;padding:6px 20px 20px;}
+  .filter-name-input{
+    display:flex;align-items:center;gap:8px;background:#FBF3E2;border-radius:12px;
+    padding:11px 14px;margin:14px 0 4px;
+  }
+  .filter-name-input input{border:none;background:transparent;outline:none;font-size:13px;font-family:'Nunito',sans-serif;width:100%;color:var(--ink);}
+
+  .filter-section{border-bottom:1px dashed var(--line);padding:16px 0;}
+  .filter-section:last-child{border-bottom:none;}
+  .filter-section-title{font-family:'Fredoka',sans-serif;font-size:13px;color:var(--ink);margin-bottom:10px;}
+  .filter-check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;}
+  .filter-check{
+    display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;
+    padding:4px 0;
+  }
+  .filter-check .box{
+    width:17px;height:17px;border-radius:5px;border:2px solid var(--line);flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;
+  }
+  .filter-check.checked .box{background:var(--mint);border-color:var(--mint);}
+  .filter-check.checked .box::after{content:"✓";}
+  .filter-store-cat-label{
+    font-size:10px;font-weight:800;color:var(--muted);margin:10px 0 6px;
+    display:flex;align-items:center;gap:6px;grid-column:1 / -1;
+  }
+  .filter-store-cat-label .dot-mark{width:6px;height:6px;border-radius:50%;}
+
+  .filter-panel-footer{
+    flex:none;padding:14px 20px calc(14px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);background:var(--panel);
+  }
+  .filter-result-line{font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:10px;text-align:center;}
+  .filter-result-line b{color:var(--coral);font-size:16px;font-family:'Fredoka',sans-serif;}
+  .filter-submit-btn{
+    display:block;width:100%;text-align:center;font-family:'Fredoka',sans-serif;
+    font-size:14.5px;font-weight:600;color:#fff;
+    background:linear-gradient(120deg,var(--coral),#FF9478);
+    padding:14px 0;border-radius:16px;box-shadow:0 4px 0 rgba(0,0,0,.1);
+  }
+  .filter-reset-link{display:block;text-align:center;margin-top:8px;font-size:11px;font-weight:700;color:var(--muted);}
+  .search-submit-btn{
+    display:block;width:100%;text-align:center;font-family:'Fredoka',sans-serif;
+    font-size:14.5px;font-weight:600;color:#fff;
+    background:linear-gradient(120deg,var(--coral),#FF9478);
+    padding:14px 0;border-radius:16px;box-shadow:0 4px 0 rgba(0,0,0,.1);
+  }
+  .search-reset-link{
+    display:block;text-align:center;margin-top:10px;font-size:11.5px;font-weight:700;color:var(--muted);
+  }
+
+  /* schedule */
+  .block-title{margin-bottom:14px;}
+  .block-title h2{font-size:19px;}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .tab{
+    flex:1;text-align:center;font-family:'Fredoka',sans-serif;font-size:13px;font-weight:600;
+    padding:10px 0;border-radius:14px;background:#FBF3E2;color:var(--muted);cursor:pointer;transition:.2s;
+  }
+  .tab.active{background:var(--mint);color:#fff;}
+  .view-toggle{display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px;font-size:11px;font-weight:700;color:var(--muted);}
+  .view-toggle span{cursor:pointer;padding:4px 10px;border-radius:10px;}
+  .view-toggle span.active{background:var(--purple);color:#fff;}
+
+  /* 出勤一覧:表示パターン共通パーツ */
+  .shift-time{font-size:9.5px;color:var(--muted);font-weight:700;margin-top:3px;}
+  .next-badge{
+    display:inline-block;margin-top:4px;font-size:9px;font-weight:800;color:#fff;
+    background:var(--mint);padding:3px 8px;border-radius:10px;
+  }
+
+  /* 4列パターン(コンパクト) */
+  .cast-grid-4{display:none;grid-template-columns:repeat(4,1fr);gap:10px 8px;}
+  .cast-grid-4.active{display:grid;}
+  .cast-grid-4 .cast-card{text-align:center;}
+  .cast-grid-4 .cast-photo{
+    width:100%;aspect-ratio:1/1;border-radius:50%;
+    background:linear-gradient(150deg,#FFD6CE,#FFEDCB);
+    border:2px solid #fff;box-shadow:0 0 0 2px var(--line);
+    margin-bottom:6px;
+  }
+  .cast-grid-4 .cast-name{font-family:'Fredoka',sans-serif;font-size:11px;}
+  .cast-grid-4 .cast-age{font-size:9px;color:var(--muted);font-weight:700;margin-top:1px;}
+
+  /* 2列パターン(詳細) */
+  .cast-grid-2{display:none;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .cast-grid-2.active{display:grid;}
+  .cast-grid-2 .cast-card-detail{
+    background:#FBF3E2;border-radius:16px;padding:12px;text-align:left;
+  }
+  .cast-grid-2 .cast-photo{
+    width:100%;aspect-ratio:1/1;border-radius:12px;
+    background:linear-gradient(150deg,#FFD6CE,#FFEDCB);
+    border:2px solid #fff;box-shadow:0 0 0 2px var(--line);
+    margin-bottom:8px;
+  }
+  .cast-grid-2 .cast-name-row{display:flex;align-items:baseline;gap:6px;}
+  .cast-grid-2 .cast-name{font-family:'Fredoka',sans-serif;font-size:13.5px;}
+  .cast-grid-2 .cast-age{font-size:10.5px;color:var(--muted);font-weight:700;}
+  .cast-grid-2 .cast-intro{
+    font-size:10.5px;color:var(--ink-soft,#6b5f52);line-height:1.5;margin-top:6px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+
+  .cast-card{text-align:center;}
+  .more-link{
+    text-align:center;margin-top:18px;font-size:12px;font-weight:700;color:var(--coral);
+  }
+
+  /* announcement */
+  .slider{display:flex;gap:12px;overflow:hidden;}
+  .slide{
+    flex:0 0 76%;height:120px;border-radius:16px;
+    background:linear-gradient(135deg,var(--purple),#A78BFA);
+    position:relative;overflow:hidden;
+  }
+  .slide.partial{flex:0 0 12%;opacity:.45;}
+  .slide-label{
+    position:absolute;bottom:12px;left:14px;color:#fff;
+    font-family:'Fredoka',sans-serif;font-size:11px;font-weight:600;
+  }
+  .dots{display:flex;justify-content:center;gap:6px;margin-top:12px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--line);}
+  .dot.active{background:var(--coral);}
+
+  /* selfie */
+  .selfie-row{display:flex;gap:8px;overflow:hidden;}
+  .selfie-item{flex:0 0 26%;position:relative;}
+  .selfie-thumb{
+    width:100%;aspect-ratio:9/16;border-radius:14px;
+    background:linear-gradient(165deg,#FFE0B2,#FFB6A3);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .selfie-thumb.partial{opacity:.4;}
+  .play-mark{
+    width:0;height:0;border-style:solid;border-width:7px 0 7px 11px;
+    border-color:transparent transparent transparent #fff;
+  }
+  .selfie-date{font-size:9px;color:var(--muted);text-align:center;margin-top:5px;font-weight:700;}
+
+  /* simple */
+  .simple-card{padding:24px 20px;text-align:center;}
+  .simple-card .placeholder{color:var(--muted);font-size:11px;font-weight:700;}
+
+  /* アクセス案内(店舗連動) */
+  .access-map{
+    width:100%;aspect-ratio:16/9;border-radius:16px;
+    background:
+      repeating-linear-gradient(0deg, #F1E3C8 0 1px, transparent 1px 22px),
+      repeating-linear-gradient(90deg, #F1E3C8 0 1px, transparent 1px 22px),
+      #FBF3E2;
+    position:relative;overflow:hidden;margin-bottom:14px;
+  }
+  .access-map .pin-marker{
+    position:absolute;top:44%;left:52%;transform:translate(-50%,-50%);
+    width:30px;height:30px;border-radius:50% 50% 50% 0;
+    background:var(--coral);transform:translate(-50%,-100%) rotate(-45deg);
+    box-shadow:0 6px 14px -4px rgba(255,111,94,.6);
+  }
+  .access-map .pin-marker::after{
+    content:"";position:absolute;width:10px;height:10px;border-radius:50%;
+    background:#fff;top:8px;left:8px;
+  }
+  .access-info{margin-bottom:14px;}
+  .access-store-name{font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;margin-bottom:4px;}
+  .access-addr{font-size:12px;color:var(--muted);font-weight:700;line-height:1.6;}
+  .access-note{
+    margin-top:8px;font-size:11px;color:var(--coral);font-weight:700;
+    background:#FFF1EC;border-radius:10px;padding:8px 10px;
+  }
+  .access-btn-row{display:flex;gap:10px;}
+  .access-btn{
+    flex:1;text-align:center;font-family:'Fredoka',sans-serif;font-size:13px;font-weight:600;
+    padding:12px 0;border-radius:14px;
+  }
+  .access-btn.tel{background:var(--mint);color:#fff;}
+  .access-btn.detail{background:#FBF3E2;color:var(--ink);border:2px solid var(--purple);}
+
+  /* お店のルール(重要事項抜粋) */
+  .rules-card{padding:22px 20px;text-align:left;}
+  .rules-list{margin-top:14px;display:flex;flex-direction:column;gap:10px;}
+  .rules-item{
+    display:flex;gap:10px;align-items:flex-start;
+    background:#FFF1EC;border-radius:12px;padding:12px 14px;
+  }
+  .rules-item .mark{
+    flex:none;width:20px;height:20px;border-radius:50%;background:var(--coral);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;
+  }
+  .rules-item .txt{font-size:12px;font-weight:700;color:var(--ink);line-height:1.6;}
+  .rules-detail-btn{
+    display:block;text-align:center;margin-top:16px;
+    font-family:'Fredoka',sans-serif;font-size:14px;font-weight:600;color:#fff;
+    background:linear-gradient(120deg,var(--purple),#9B7CFF);
+    padding:13px 0;border-radius:14px;
+    box-shadow:0 4px 0 rgba(0,0,0,.1);
+  }
+
+  /* 求人相談(控えめな導線) */
+  .recruit-nudge{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:16px 18px;
+  }
+  .recruit-nudge-text{font-size:11.5px;font-weight:700;color:var(--muted);}
+  .recruit-nudge-text b{color:var(--ink);}
+  .recruit-nudge-link{
+    flex:none;font-size:11px;font-weight:800;color:var(--coral);
+    padding:7px 12px;border:1.5px solid var(--coral);border-radius:16px;white-space:nowrap;
+  }
+
+  /* footer */
+  .footer{padding:22px 20px;text-align:center;}
+  .footer-brand{font-family:'Fredoka',sans-serif;font-size:14px;color:var(--coral);}
+  .footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:12px;}
+  .footer-links a{font-size:10.5px;color:var(--muted);font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- サイドバー(左:お客様の声+SNS) -->
+<div class="sidebar">
+  <div class="card reveal">
+    <p class="eyebrow">Customer Voice</p>
+    <h2 style="font-size:15px;margin-top:6px;">お客様の声</h2>
+    <div class="voice-list">
+      <div class="voice-item">
+        <div class="voice-head"><div class="voice-avatar"></div><div class="voice-name">担当:源氏名</div><div class="voice-date">7/17</div></div>
+        <div class="voice-text">丁寧な対応で安心して利用できました。また指名します。</div>
+      </div>
+      <div class="voice-item">
+        <div class="voice-head"><div class="voice-avatar"></div><div class="voice-name">担当:源氏名</div><div class="voice-date">7/16</div></div>
+        <div class="voice-text">受付の説明が分かりやすく、初めてでも迷いませんでした。</div>
+      </div>
+      <div class="voice-item">
+        <div class="voice-head"><div class="voice-avatar"></div><div class="voice-name">担当:源氏名</div><div class="voice-date">7/14</div></div>
+        <div class="voice-text">雰囲気がよく、また利用したいと思いました。</div>
+      </div>
+    </div>
+    <div class="voice-more">すべての声を見る →</div>
+  </div>
+
+  <div class="card reveal">
+    <p class="eyebrow">Follow</p>
+    <h2 style="font-size:15px;margin-top:6px;">公式SNS</h2>
+    <div class="sns-row">
+      <a href="#" class="sns-link"><div class="sns-icon ig">IG</div>Instagram</a>
+      <a href="#" class="sns-link"><div class="sns-icon x">X</div>X(Twitter)</a>
+      <a href="#" class="sns-link"><div class="sns-icon line">L</div>LINE公式</a>
+      <a href="#" class="sns-link"><div class="sns-icon tiktok">TT</div>TikTok</a>
+    </div>
+  </div>
+</div>
+
+<div class="frame">
+
+  <!-- ヘッダー -->
+  <div class="card reveal">
+    <div class="header-top">
+      <div class="brand">
+        <div class="brand-mark">P</div>
+        <div class="brand-name">Store Name</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;">
+        <div class="header-meta">OPEN 10:00–翌5:00<br>03-XXXX-XXXX</div>
+        <div class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINE求人バナー -->
+  <div class="card reveal line-banner">
+    <div class="line-banner-inner">
+      <div class="line-icon">L</div>
+      <div class="line-text">
+        <div class="line-badge">NEW</div>
+        <div class="line-copy">LINEでかんたん求人はじめました</div>
+      </div>
+    </div>
+    <a href="#" class="line-cta">友だち追加 →</a>
+  </div>
+
+  <!-- 検索 -->
+  <div class="card reveal">
+    <div class="search-box" id="searchOpenBtn" style="cursor:pointer;">
+      <div class="search-icon"></div>
+      <div class="search-text"><span>700名以上</span>の在籍から探す — 店舗を横断して検索</div>
+    </div>
+  </div>
+
+  <!-- 店舗切替(モーダル版) -->
+  <div class="card reveal">
+    <p class="eyebrow" style="margin-bottom:12px;">Select Store — サンプルB:モーダル</p>
+    <div class="store-chip-row" id="storeChip">
+      <div class="store-chip-left">
+        <div class="store-pin">📍</div>
+        <div class="store-chip-name" id="storeChipName">新宿店</div>
+      </div>
+      <div class="store-chip-caret">変更する ▾</div>
+    </div>
+  </div>
+
+  <!-- 本日の出勤 -->
+  <div class="card reveal">
+    <div class="block-title">
+      <p class="eyebrow">Today's Cast</p>
+      <h2>本日の出勤</h2>
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="today">本日</div>
+      <div class="tab" data-tab="tomorrow">明日</div>
+    </div>
+    <div class="view-toggle">
+      <span class="active" data-view="grid4">4列(シンプル)</span>
+      <span data-view="grid2">2列(紹介文あり)</span>
+    </div>
+
+    <!-- 4列:コンパクト表示 -->
+    <div class="cast-grid-4 active" id="castGrid4">
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">13:30-18:00</div><div class="next-badge">次回17:24〜</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">14:35-21:00</div><div class="next-badge">次回18:35〜</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">16:00-20:00</div><div class="next-badge">次回17:24〜</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">16:00-21:00</div><div class="next-badge">次回17:50〜</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">12:00-17:00</div><div class="next-badge">受付終了</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">15:00-22:00</div><div class="next-badge">次回19:00〜</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">11:00-16:00</div><div class="next-badge">受付終了</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">17:00-23:00</div><div class="next-badge">次回17:30〜</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">13:00-19:00</div><div class="next-badge">次回18:00〜</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">14:00-20:00</div><div class="next-badge">次回17:40〜</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">10:00-15:00</div><div class="next-badge">受付終了</div></div>
+      <div class="cast-card"><div class="cast-photo"></div><div class="cast-name">源氏名</div><div class="cast-age">XX歳</div><div class="shift-time">18:00-24:00</div><div class="next-badge">次回18:00〜</div></div>
+    </div>
+
+    <!-- 2列:詳細表示(紹介文つき) -->
+    <div class="cast-grid-2" id="castGrid2">
+      <div class="cast-card-detail">
+        <div class="cast-photo"></div>
+        <div class="cast-name-row"><span class="cast-name">源氏名</span><span class="cast-age">XX歳</span></div>
+        <div class="shift-time">13:30-18:00</div><div class="next-badge">次回17:24〜</div>
+        <div class="cast-intro">笑顔が印象的で明るい性格。実はインドア派でアニメが大好き…</div>
+      </div>
+      <div class="cast-card-detail">
+        <div class="cast-photo"></div>
+        <div class="cast-name-row"><span class="cast-name">源氏名</span><span class="cast-age">XX歳</span></div>
+        <div class="shift-time">14:35-21:00</div><div class="next-badge">次回18:35〜</div>
+        <div class="cast-intro">若いのにすごく色気があり、良い意味で冷たさもあるタイプ…</div>
+      </div>
+      <div class="cast-card-detail">
+        <div class="cast-photo"></div>
+        <div class="cast-name-row"><span class="cast-name">源氏名</span><span class="cast-age">XX歳</span></div>
+        <div class="shift-time">16:00-20:00</div><div class="next-badge">次回17:24〜</div>
+        <div class="cast-intro">世界で一番可愛いドMキラー。あなたをメロメロにします…</div>
+      </div>
+      <div class="cast-card-detail">
+        <div class="cast-photo"></div>
+        <div class="cast-name-row"><span class="cast-name">源氏名</span><span class="cast-age">XX歳</span></div>
+        <div class="shift-time">16:00-21:00</div><div class="next-badge">次回17:50〜</div>
+        <div class="cast-intro">清楚で可愛らしいと評判。清潔感のある雰囲気が特徴…</div>
+      </div>
+      <div class="cast-card-detail">
+        <div class="cast-photo"></div>
+        <div class="cast-name-row"><span class="cast-name">源氏名</span><span class="cast-age">XX歳</span></div>
+        <div class="shift-time">12:00-17:00</div><div class="next-badge">受付終了</div>
+        <div class="cast-intro">明るく話しやすいと評判、初めての方にも人気です…</div>
+      </div>
+      <div class="cast-card-detail">
+        <div class="cast-photo"></div>
+        <div class="cast-name-row"><span class="cast-name">源氏名</span><span class="cast-age">XX歳</span></div>
+        <div class="shift-time">15:00-22:00</div><div class="next-badge">次回19:00〜</div>
+        <div class="cast-intro">落ち着いた雰囲気でゆったり過ごせると好評…</div>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:14px;font-size:10.5px;color:var(--muted);font-weight:700;">
+      全12名を表示中(絞り込み・並び替えは今後実装)
+    </p>
+    <a href="schedule_page.html" class="schedule-cta" style="display:block;text-align:center;margin-top:14px;font-family:'Fredoka',sans-serif;font-size:13.5px;font-weight:600;color:#fff;background:linear-gradient(120deg,var(--coral),#FF9478);padding:12px 0;border-radius:14px;box-shadow:0 4px 0 rgba(0,0,0,.1);">週間スケジュールで見る →</a>
+  </div>
+
+  <!-- アクセス(選択中店舗と連動) -->
+  <div class="card reveal">
+    <div class="block-title">
+      <p class="eyebrow">Access</p>
+      <h2 style="font-size:17px;">アクセス・電話案内</h2>
+    </div>
+    <div class="access-map">
+      <div class="pin-marker"></div>
+    </div>
+    <div class="access-info">
+      <div class="access-store-name">📍 新宿店</div>
+      <div class="access-addr">東京都新宿区◯◯ X-X-X ◯◯ビル XF</div>
+      <div class="access-note">初めての方は、下記お電話スポットよりお電話ください</div>
+    </div>
+    <div class="access-btn-row">
+      <a href="tel:0362335555" class="access-btn tel">📞 今すぐ電話する</a>
+      <a href="#" class="access-btn detail">詳しく見る →</a>
+    </div>
+  </div>
+
+  <!-- お知らせ -->
+  <div class="card reveal">
+    <div class="block-title">
+      <p class="eyebrow">News</p>
+      <h2 style="font-size:17px;">イベント・お知らせ</h2>
+    </div>
+    <div class="slider">
+      <div class="slide"><div class="slide-label">EVENT ★ 期間限定</div></div>
+      <div class="slide partial"></div>
+    </div>
+    <div class="dots"><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>
+
+  <!-- セルフィー動画 -->
+  <div class="card reveal">
+    <div class="block-title">
+      <p class="eyebrow">Selfie</p>
+      <h2 style="font-size:16px;">セルフィー動画</h2>
+    </div>
+    <div class="selfie-row">
+      <div class="selfie-item"><div class="selfie-thumb"><div class="play-mark"></div></div><div class="selfie-date">7/15更新</div></div>
+      <div class="selfie-item"><div class="selfie-thumb"><div class="play-mark"></div></div><div class="selfie-date">7/10更新</div></div>
+      <div class="selfie-item"><div class="selfie-thumb"><div class="play-mark"></div></div><div class="selfie-date">6/28更新</div></div>
+      <div class="selfie-item"><div class="selfie-thumb partial"></div></div>
+    </div>
+  </div>
+
+  <!-- キャストブログ(現状維持) -->
+  <div class="card simple-card reveal">
+    <p class="eyebrow">Blog</p>
+    <h2 style="font-size:15px;margin-top:6px;">キャストのブログ</h2>
+    <p class="placeholder" style="margin-top:10px;">既存レイアウトを維持</p>
+  </div>
+
+  <!-- お店のルール(重要事項はトップに表示、詳細は別ページへ) -->
+  <div class="card rules-card reveal">
+    <p class="eyebrow">Rules</p>
+    <h2 style="font-size:16px;margin-top:6px;">ご利用にあたって、特に重要なお願い</h2>
+    <div class="rules-list">
+      <div class="rules-item"><div class="mark">!</div><div class="txt">遅刻・当日キャンセルは罰金対象となります(◯分以上の遅刻でXX,XXX円)</div></div>
+      <div class="rules-item"><div class="mark">!</div><div class="txt">お会計は必ず本人様が直接お支払いください</div></div>
+      <div class="rules-item"><div class="mark">!</div><div class="txt">泥酔でのご利用はお断りする場合がございます</div></div>
+    </div>
+    <a href="#" class="rules-detail-btn">当店のルールをすべて見る →</a>
+  </div>
+
+  <!-- 求人相談(控えめな導線) -->
+  <div class="card recruit-nudge reveal">
+    <div class="recruit-nudge-text">ここまで読んで、<b>働くことも気になった方</b>へ</div>
+    <a href="#" class="recruit-nudge-link">お店に相談してみる</a>
+  </div>
+
+  <!-- フッター(現状維持) -->
+  <div class="card footer">
+    <div class="footer-brand">Store Name</div>
+    <div class="footer-links">
+      <a href="#">アクセス</a><a href="#">ご利用方法</a><a href="#">よくある質問</a>
+      <a href="#">当店のルール</a><a href="#">女子求人情報</a><a href="#">マイページ</a>
+    </div>
+  </div>
+
+</div><!-- /frame -->
+</div><!-- /layout -->
+
+<!-- ハンバーガーメニュー ドロワー(全項目) -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <span>MENU</span>
+    <div class="drawer-close" id="drawerClose">✕</div>
+  </div>
+  <div class="drawer-list">
+    <a href="#" class="current">トップ</a>
+    <a href="#" id="drawerFilterLink" style="color:var(--coral);">🔍 絞り込み検索</a>
+    <a href="schedule_page.html">出勤スケジュール</a>
+    <a href="cast_list_page.html">在籍の女の子</a>
+    <a href="#">コスプレ</a>
+    <a href="#">料金・計算機</a>
+    <a href="#">ご利用方法</a>
+    <a href="#">アクセス</a>
+    <a href="#">よくある質問</a>
+    <a href="#">当店のルール</a>
+    <a href="#">アンケート</a>
+    <a href="#">求人情報</a>
+    <a href="#">マイページ</a>
+  </div>
+</div>
+
+<!-- 絞り込み検索パネル(SUUMO型:カテゴリ別チェックボックス+下部固定バー) -->
+<div class="filter-panel-overlay" id="filterPanelOverlay">
+  <div class="filter-panel">
+    <div class="filter-panel-head">
+      <span>条件の追加・変更</span>
+      <div class="filter-panel-close" id="filterPanelClose">✕</div>
+    </div>
+
+    <div class="filter-panel-body">
+      <div class="filter-name-input">
+        🔍 <input type="text" id="filterNameInput" placeholder="源氏名で検索">
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-title">年齢</div>
+        <div class="filter-check-grid" data-group="age">
+          <div class="filter-check"><div class="box"></div>18〜19歳</div>
+          <div class="filter-check"><div class="box"></div>20代前半</div>
+          <div class="filter-check"><div class="box"></div>20代後半</div>
+          <div class="filter-check"><div class="box"></div>30代</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-title">身長</div>
+        <div class="filter-check-grid" data-group="height">
+          <div class="filter-check"><div class="box"></div>150cm未満</div>
+          <div class="filter-check"><div class="box"></div>150〜155cm</div>
+          <div class="filter-check"><div class="box"></div>155〜160cm</div>
+          <div class="filter-check"><div class="box"></div>160cm以上</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-title">スリーサイズ(バスト目安)</div>
+        <div class="filter-check-grid" data-group="bust">
+          <div class="filter-check"><div class="box"></div>Aカップ</div>
+          <div class="filter-check"><div class="box"></div>Bカップ</div>
+          <div class="filter-check"><div class="box"></div>Cカップ</div>
+          <div class="filter-check"><div class="box"></div>Dカップ以上</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-title">タイプ</div>
+        <div class="filter-check-grid" data-group="type">
+          <div class="filter-check"><div class="box"></div>清楚</div>
+          <div class="filter-check"><div class="box"></div>色白</div>
+          <div class="filter-check"><div class="box"></div>巨乳</div>
+          <div class="filter-check"><div class="box"></div>スレンダー</div>
+          <div class="filter-check"><div class="box"></div>小悪魔</div>
+          <div class="filter-check"><div class="box"></div>責め</div>
+          <div class="filter-check"><div class="box"></div>M</div>
+          <div class="filter-check"><div class="box"></div>高身長</div>
+          <div class="filter-check"><div class="box"></div>新人</div>
+          <div class="filter-check"><div class="box"></div>動画あり</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-title">可能OP</div>
+        <div class="filter-check-grid" data-group="op">
+          <div class="filter-check"><div class="box"></div>OP-A</div>
+          <div class="filter-check"><div class="box"></div>OP-B</div>
+          <div class="filter-check"><div class="box"></div>OP-C</div>
+          <div class="filter-check"><div class="box"></div>★OP</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-section-title">店舗</div>
+        <div class="filter-check-grid" data-group="store">
+          <div class="filter-store-cat-label"><span class="dot-mark" style="background:var(--mint);"></span>通常店舗</div>
+          <div class="filter-check checked"><div class="box"></div>新宿店</div>
+          <div class="filter-check"><div class="box"></div>しんばし店</div>
+          <div class="filter-check"><div class="box"></div>錦糸町店</div>
+          <div class="filter-check"><div class="box"></div>立川店</div>
+          <div class="filter-check"><div class="box"></div>柏店</div>
+          <div class="filter-check"><div class="box"></div>日暮里店</div>
+          <div class="filter-check"><div class="box"></div>鶯谷店</div>
+          <div class="filter-check"><div class="box"></div>蒲田店</div>
+          <div class="filter-check"><div class="box"></div>町田店</div>
+          <div class="filter-check"><div class="box"></div>目黒店</div>
+          <div class="filter-check"><div class="box"></div>大崎広小路店</div>
+          <div class="filter-store-cat-label"><span class="dot-mark" style="background:#FF5CA0;"></span>あんぷり学園</div>
+          <div class="filter-check"><div class="box"></div>あんぷり学園</div>
+          <div class="filter-store-cat-label"><span class="dot-mark" style="background:#2B2620;"></span>大人のシリーズ</div>
+          <div class="filter-check"><div class="box"></div>大人の錦糸町店</div>
+          <div class="filter-check"><div class="box"></div>大人のしんばし店</div>
+          <div class="filter-check"><div class="box"></div>大人の立川店</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-panel-footer">
+      <div class="filter-result-line"><b id="filterResultCount">128</b>件見つかりました</div>
+      <a href="#" id="filterSubmitBtn" class="filter-submit-btn">この条件で検索する →</a>
+      <div class="filter-reset-link" id="filterResetLink">条件をリセット</div>
+    </div>
+  </div>
+</div>
+
+<!-- 店舗選択モーダル -->
+<div class="store-modal-overlay" id="storeModalOverlay">
+  <div class="store-modal" id="storeModal">
+    <div class="store-modal-head">
+      <span>店舗を選択</span>
+      <div class="store-modal-close" id="storeModalClose">✕</div>
+    </div>
+    <div class="store-search">
+      🔍 <input type="text" placeholder="店舗名で検索">
+    </div>
+
+    <div class="store-cat-label first"><span class="dot-mark" style="background:var(--mint);"></span>通常店舗</div>
+    <div class="store-option selected">新宿店</div>
+    <div class="store-option">しんばし店</div>
+    <div class="store-option">錦糸町店</div>
+    <div class="store-option">立川店</div>
+    <div class="store-option">柏店</div>
+    <div class="store-option">日暮里店</div>
+    <div class="store-option">鶯谷店</div>
+    <div class="store-option">蒲田店</div>
+    <div class="store-option">町田店</div>
+    <div class="store-option">目黒店</div>
+    <div class="store-option">大崎広小路店</div>
+
+    <div class="store-cat-label"><span class="dot-mark" style="background:#FF5CA0;"></span>あんぷり学園</div>
+    <div class="store-option">あんぷり学園</div>
+
+    <div class="store-cat-label"><span class="dot-mark" style="background:#2B2620;"></span>大人のシリーズ</div>
+    <div class="store-option">大人の錦糸町店</div>
+    <div class="store-option">大人のしんばし店</div>
+    <div class="store-option">大人の立川店</div>
+  </div>
+</div>
+
+<script>
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('drawer');
+  const drawerOverlay = document.getElementById('drawerOverlay');
+  const drawerClose = document.getElementById('drawerClose');
+  function openDrawer(){ drawer.classList.add('open'); drawerOverlay.classList.add('open'); }
+  function closeDrawer(){ drawer.classList.remove('open'); drawerOverlay.classList.remove('open'); }
+  hamburgerBtn.addEventListener('click', openDrawer);
+  drawerClose.addEventListener('click', closeDrawer);
+  drawerOverlay.addEventListener('click', closeDrawer);
+
+  // 絞り込み検索パネル(SUUMO型)
+  const searchOpenBtn = document.getElementById('searchOpenBtn');
+  const filterPanelOverlay = document.getElementById('filterPanelOverlay');
+  const filterPanelClose = document.getElementById('filterPanelClose');
+  const drawerFilterLink = document.getElementById('drawerFilterLink');
+
+  function openFilterPanel(){ filterPanelOverlay.classList.add('open'); }
+  function closeFilterPanel(){ filterPanelOverlay.classList.remove('open'); }
+  searchOpenBtn.addEventListener('click', openFilterPanel);
+  drawerFilterLink.addEventListener('click', (e)=>{ e.preventDefault(); closeDrawer(); openFilterPanel(); });
+  filterPanelClose.addEventListener('click', closeFilterPanel);
+  filterPanelOverlay.addEventListener('click',(e)=>{ if(e.target===filterPanelOverlay) closeFilterPanel(); });
+
+  // 総サンプル数(デモ用)。チェックが増えるほど件数が減る簡易ロジック
+  const TOTAL_DEMO_COUNT = 128;
+  function recalcFilterCount(){
+    const checkedCount = document.querySelectorAll('.filter-panel-body .filter-check.checked').length;
+    const nameFilled = document.getElementById('filterNameInput').value.trim().length > 0 ? 1 : 0;
+    const factor = checkedCount + nameFilled;
+    const count = factor === 0 ? TOTAL_DEMO_COUNT : Math.max(1, Math.round(TOTAL_DEMO_COUNT / (factor * 1.8)));
+    document.getElementById('filterResultCount').textContent = count;
+  }
+  document.querySelectorAll('.filter-panel-body .filter-check').forEach(chk=>{
+    chk.addEventListener('click', ()=>{ chk.classList.toggle('checked'); recalcFilterCount(); });
+  });
+  document.getElementById('filterNameInput').addEventListener('input', recalcFilterCount);
+  document.getElementById('filterResetLink').addEventListener('click', ()=>{
+    document.querySelectorAll('.filter-panel-body .filter-check').forEach(c=>c.classList.remove('checked'));
+    document.getElementById('filterNameInput').value = '';
+    recalcFilterCount();
+  });
+  document.getElementById('filterSubmitBtn').addEventListener('click',(e)=>{
+    e.preventDefault();
+    const params = new URLSearchParams();
+    ['age','height','bust','type','op','store'].forEach(group=>{
+      const vals = [...document.querySelectorAll(`.filter-check-grid[data-group="${group}"] .filter-check.checked`)]
+        .map(c=>c.textContent.trim());
+      if(vals.length) params.set(group, vals.join(','));
+    });
+    const name = document.getElementById('filterNameInput').value.trim();
+    if(name) params.set('name', name);
+    window.location.href = 'cast_list_page.html?' + params.toString();
+  });
+
+  const storeChip = document.getElementById('storeChip');
+  const storeModalOverlay = document.getElementById('storeModalOverlay');
+  const storeModalClose = document.getElementById('storeModalClose');
+  const storeChipName = document.getElementById('storeChipName');
+  storeChip.addEventListener('click', ()=> storeModalOverlay.classList.add('open'));
+  storeModalClose.addEventListener('click', ()=> storeModalOverlay.classList.remove('open'));
+  storeModalOverlay.addEventListener('click', (e)=>{ if(e.target===storeModalOverlay) storeModalOverlay.classList.remove('open'); });
+  document.querySelectorAll('.store-option').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      document.querySelectorAll('.store-option').forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      storeChipName.textContent = opt.textContent;
+      const accessName = document.querySelector('.access-store-name');
+      if(accessName) accessName.textContent = '📍 ' + opt.textContent;
+      storeModalOverlay.classList.remove('open');
+    });
+  });
+
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.view-toggle span').forEach(v=>{
+    v.addEventListener('click',()=>{
+      document.querySelectorAll('.view-toggle span').forEach(s=>s.classList.remove('active'));
+      v.classList.add('active');
+      const view = v.dataset.view;
+      document.getElementById('castGrid4').classList.toggle('active', view==='grid4');
+      document.getElementById('castGrid2').classList.toggle('active', view==='grid2');
+    });
+  });
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
